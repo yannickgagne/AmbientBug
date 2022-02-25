@@ -5,7 +5,7 @@ from umqtt.simple import MQTTClient
 from machine import Pin, I2C
 import ahtx0
 
-last_tick = 0
+last_tick = time.ticks_ms()
 pub_delay_ms = 60000
 
 #Sensor setup
@@ -14,13 +14,14 @@ sensor = ahtx0.AHT20(i2c)
 time.sleep_ms(20)
 
 #MQTT Cayenne setup
-mqtt_user = "3c13f910-7be2-11ec-a681-73c9540e1265"
-mqtt_pass = "82a57b8c82428e44a53da22c789da2faec6b32bc"
-mqtt_client_id = "e2d9a7d0-934e-11ec-8c44-371df593ba58"
-mqtt_server = "mqtt.mydevices.com"
+mqtt_user = "qs8$6meFa%D^1Gzw1o9^S5i4plYhPB$q"
+mqtt_pass = "d%EYyEkYQCeRw3l3bti6I^%XRbeuV7g8"
+mqtt_client_id = "mp001"
+mqtt_server = "10.10.1.68"
 mqtt_port = 1883
-mqtt_topic = b"v1/" + mqtt_user + "/things/" + mqtt_client_id + "/data/json"
-client = MQTTClient(mqtt_client_id, mqtt_server, port=mqtt_port, user=mqtt_user, password=mqtt_pass)
+mqtt_room = "cuisine"
+mqtt_topic = b"5702/" + mqtt_room + "/" + mqtt_client_id
+client = MQTTClient(mqtt_client_id, mqtt_server, port=mqtt_port, user=mqtt_user, password=mqtt_pass, keepalive=60)
 
 #Connect to WIFI
 ssid = "57xxIoT"
@@ -45,7 +46,7 @@ MQTT_GO = True
 if MQTT_GO == True:
   client.connect()
   while True:
-    if time.ticks_ms() - last_tick > 60000:
+    if time.ticks_diff(time.ticks_ms(), last_tick) > pub_delay_ms:
       last_tick = time.ticks_ms()
       #Get temp/humi from sensor
       stemp = sensor.temperature
