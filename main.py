@@ -44,7 +44,7 @@ print(station.ifconfig())
 MQTT_GO = True
 #Publish dummy data to Cayenne
 if MQTT_GO == True:
-  client.connect()
+  #client.connect()
   while True:
     if time.ticks_diff(time.ticks_ms(), last_tick) > pub_delay_ms:
       last_tick = time.ticks_ms()
@@ -68,7 +68,7 @@ if MQTT_GO == True:
                   "unit": "p"
                 } ]
 
-      #client.connect()
+      client.connect()
       mqtt_msg = json.dumps(payload)
       client.publish(mqtt_topic, mqtt_msg)
-      #client.disconnect()
+      client.disconnect()
