@@ -4,6 +4,7 @@ import network
 from umqtt.simple import MQTTClient
 from machine import Pin, I2C
 import ahtx0
+import ssd1306
 
 last_tick = time.ticks_ms()
 pub_delay_ms = 60000
@@ -11,6 +12,7 @@ pub_delay_ms = 60000
 #Sensor setup
 i2c = I2C(scl=Pin(5), sda=Pin(4))
 sensor = ahtx0.AHT20(i2c)
+oled = ssd1306.SSD1306_I2C(128, 32, i2c)
 time.sleep_ms(20)
 
 #MQTT Cayenne setup
@@ -53,7 +55,12 @@ if MQTT_GO == True:
       shumi = sensor.relative_humidity
       print("Temperature: %0.2f C" % stemp)
       print("Humidity: %0.2f %%" % shumi)
-
+      #OLED
+      oled.rotate(False)
+      oled.fill(0)
+      oled.text('%0.2f C' % stemp, 0, 0, 1)
+      oled.text('%0.2f %%' % shumi, 0, 16, 1)
+      oled.show()
       #Build JSON payload
       payload = [ {
                   "channel": 1,
