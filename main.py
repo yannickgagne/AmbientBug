@@ -9,7 +9,7 @@ import ssd1306
 pub_last_tick = 0
 pub_delay_ms = 60000
 oc_last_tick = 0
-oc_delay_ms = 2000
+oc_delay_ms = 1000
 oc = 0
 
 #Sensor setup
@@ -55,6 +55,8 @@ if MQTT_GO == True:
   #client.connect()
   while True:
     if time.ticks_diff(time.ticks_ms(), oc_last_tick) > oc_delay_ms: #loop 1 time per 2 seconds
+      oled.fill_rect(120,0,128,8,0)
+      oled.show()
       if oc == 0:
         oled.text("|", 120, 0, 1)
       if oc == 1:
@@ -62,7 +64,7 @@ if MQTT_GO == True:
       if oc == 2:
         oled.text("-", 120, 0, 1)
       if oc == 3:
-        oled.text("\", 120, 0, 1)
+        oled.text("\\", 120, 0, 1)
       oc_last_tick = time.ticks_ms()
       oled.show()
       oc += 1
