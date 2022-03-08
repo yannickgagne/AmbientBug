@@ -11,6 +11,7 @@ pub_delay_ms = 60000
 oc_last_tick = 0
 oc_delay_ms = 1000
 oc = 0
+MQTT_ACTIVE = False
 
 #Sensor setup
 i2c = I2C(scl=Pin(5), sda=Pin(4))
@@ -51,53 +52,76 @@ print(st_if.ifconfig())
 
 MQTT_GO = True
 #Publish dummy data to Cayenne
-if MQTT_GO == True:
+if MQTT_GO:
   #client.connect()
   while True:
-    if time.ticks_diff(time.ticks_ms(), oc_last_tick) > oc_delay_ms: #loop 1 time per 2 seconds
-      oled.fill_rect(120,0,128,8,0)
-      oled.show()
-      if oc == 0:
-        oled.text("|", 120, 0, 1)
-      if oc == 1:
-        oled.text("/", 120, 0, 1)
-      if oc == 2:
-        oled.text("-", 120, 0, 1)
-      if oc == 3:
-        oled.text("\\", 120, 0, 1)
-      oc_last_tick = time.ticks_ms()
-      oled.show()
-      oc += 1
-      if oc > 3:
-        oc = 0
-        
     if time.ticks_diff(time.ticks_ms(), pub_last_tick) > pub_delay_ms: #loop 1 time per minute
+      MQTT_ACTIVE = True
       pub_last_tick = time.ticks_ms()
+      #Check if WIFI is up
+      try:
+        if st_if.isconnected() == False:
+          st_if.connect(ssid, password)
+          while st_if.isconnected() == False:
+            pass
+      except:
+        print("WIFI failed...")
       #Get temp/humi from sensor
-      stemp = sensor.temperature
-      shumi = sensor.relative_humidity
-      print("Temperature: %0.2f C" % stemp)
-      print("Humidity: %0.2f %%" % shumi)
+      try:
+        stemp = sensor.temperature
+        shumi = sensor.relative_humidity
+        print("Temperature: %0.2f C" % stemp)
+        print("Humidity: %0.2f %%" % shumi)
+      except:
+        print("Sensor reading failed...")
       #OLED
-      oled.fill(0)
-      oled.text('%0.2f C' % stemp, 0, 0, 1)
-      oled.text('%0.2f %%' % shumi, 0, 16, 1)
-      oled.show()
+      try:
+        oled.fill(0)
+        oled.text('%0.2f C' % stemp, 0, 0, 1)
+        oled.text('%0.2f %%' % shumi, 0, 16, 1)
+        oled.show()
+      except:
+        print("OLED update failed...")
       #Build JSON payload
-      payload = [ {
-                  "channel": 1,
-                  "value": stemp,
-                  "type": "temp",
-                  "unit": "c"
-                },
-                {
-                  "channel": 2,
-                  "value": shumi,
-                  "type": "rel_hum",
-                  "unit": "p"
-                } ]
+      try:
+        payload = [ {
+                    "channel": 1,
+                    "value": stemp,
+                    "type": "temp",
+                    "unit": "c"
+                  },
+                  {
+                    "channel": 2,
+                    "value": shumi,
+                    "type": "rel_hum",
+                    "unit": "p"
+                  } ]
 
-      client.connect()
-      mqtt_msg = json.dumps(payload)
-      client.publish(mqtt_topic, mqtt_msg)
-      client.disconnect()
+        client.connect()
+        mqtt_msg = json.dumps(payload)
+        client.publish(mqtt_topic, mqtt_msg)
+        client.disconnect()
+      except:
+        print("MQTT publish failed...")
+      MQTT_ACTIVE = False
+
+    if not MQTT_ACTIVE: 
+      if time.ticks_diff(time.ticks_ms(), oc_last_tick) > oc_delay_ms: #loop 1 time per 2 seconds
+        try:
+          oled.fill_rect(120,0,128,8,0)
+          oled.show()
+          if oc == 0:
+            oled.text("|", 120, 0, 1)
+          if oc == 1:
+            oled.text("/", 120, 0, 1)
+          if oc == 2:
+            oled.text("-", 120, 0, 1)
+          if oc == 3:
+            oled.text("\\", 120, 0, 1)
+          oc_last_tick = time.ticks_ms()
+          oled.show()
+          oc += 1
+          if oc > 3:
+            oc = 0
+        except:
+          print("Active thingy failed...")
