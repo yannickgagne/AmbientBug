@@ -5,12 +5,15 @@ from umqtt.simple import MQTTClient
 from machine import Pin, I2C
 import ahtx0
 import ssd1306
+import ntp_sync
 
 pub_last_tick = 0
 pub_delay_ms = 60000
+ntp_delay_ms = 3600000
 oc_last_tick = 0
 oc_delay_ms = 1000
 oc = 0
+last_min = 0
 MQTT_ACTIVE = False
 
 #Sensor setup
@@ -19,6 +22,8 @@ sensor = ahtx0.AHT20(i2c)
 oled = ssd1306.SSD1306_I2C(128, 32, i2c)
 time.sleep_ms(20)
 oled.rotate(False)
+stemp = 0
+shumi = 0
 
 #MQTT Cayenne setup
 mqtt_user = "qs8$6meFa%D^1Gzw1o9^S5i4plYhPB$q"
@@ -50,6 +55,8 @@ while st_if.isconnected() == False:
 print("Connection successful")
 print(st_if.ifconfig())
 
+ntp_sync.sync_localtime()
+
 MQTT_GO = True
 #Publish dummy data to Cayenne
 if MQTT_GO:
@@ -74,14 +81,6 @@ if MQTT_GO:
         print("Humidity: %0.2f %%" % shumi)
       except:
         print("Sensor reading failed...")
-      #OLED
-      try:
-        oled.fill(0)
-        oled.text('%0.2f C' % stemp, 0, 0, 1)
-        oled.text('%0.2f %%' % shumi, 0, 16, 1)
-        oled.show()
-      except:
-        print("OLED update failed...")
       #Build JSON payload
       try:
         payload = [ {
@@ -105,7 +104,21 @@ if MQTT_GO:
         print("MQTT publish failed...")
       MQTT_ACTIVE = False
 
-    if not MQTT_ACTIVE: 
+    if not MQTT_ACTIVE:
+      #update display when minute changes
+      if not last_min == time.localtime()[4]:
+        #OLED
+        try:
+          now = time.localtime()
+          oled.fill(0)
+          oled.text('%0.1f C / %0.1f %%' % (stemp, shumi), 0, 0, 1)
+          oled.text('%02d:%02d %02d/%02d/%d' % (now[3], now[4], now[2], now[1], now[0]), 0, 16, 1)
+          oled.show()
+        except:
+          print("OLED update failed...")
+        last_min = time.localtime()[4]
+
+      #update small thingy to show that mcu is alive
       if time.ticks_diff(time.ticks_ms(), oc_last_tick) > oc_delay_ms: #loop 1 time per 2 seconds
         try:
           oled.fill_rect(120,0,128,8,0)
@@ -125,3 +138,10 @@ if MQTT_GO:
             oc = 0
         except:
           print("Active thingy failed...")
+
+        #sync rtc/localtime to internet ntp server
+        if time.ticks_diff(time.ticks_ms(), oc_last_tick) > ntp_delay_ms: #loop 1 time per hour
+          try:
+            ntp_sync.sync_localtime()
+          except:
+            print("NTP sync failed...")

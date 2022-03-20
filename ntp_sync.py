@@ -3,7 +3,7 @@ import ntptime
 from machine import RTC
 
 # winter offset and summer offset set for Britain. use 1 and 2 for CET
-def sync_ntp(woff=-4,soff=-5):
+def sync_localtime(woff=-4,soff=-5):
     trials = 10
     while trials > 0:
         try:
@@ -35,4 +35,5 @@ def sync_ntp(woff=-4,soff=-5):
         tm[4] += woff #UTC + 0H otherwise
 
     RTC().datetime(tm)
+    print('Synced datetime with NTP...')
     print(utime.localtime())
