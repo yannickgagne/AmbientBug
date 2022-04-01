@@ -25,9 +25,11 @@ def sync_localtime(woff=-4,soff=-5):
     year = tm[0]
 
     #Time of March change for the current year
-    t1 = utime.mktime((year,3,(31-(int(5*year/4+4))%7),1,0,0,0,0))
+    #t1 = utime.mktime((year,3,(31-(int(5*year/4+4))%7),1,0,0,0,0))
+    t1 = utime.mktime((year,3,(14-(int(5*year/4+1))%7),1,0,0,0,0))
     #Time of October change for the current year
-    t2 = utime.mktime((year,10,(31-(int(5*year/4+1))%7),1,0,0,0,0))
+    #t2 = utime.mktime((year,10,(31-(int(5*year/4+1))%7),1,0,0,0,0))
+    t2 = utime.mktime((year,11,(7-(int(5*year/4+1))%7),1,0,0,0,0))
 
     if t >= t1 and t < t2:
         tm[4] += soff #UTC + 1H for BST
