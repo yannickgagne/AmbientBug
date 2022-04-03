@@ -10,6 +10,7 @@ import ntp_sync
 pub_last_tick = 0
 pub_delay_ms = 60000
 ntp_delay_ms = 3600000
+ntp_last_tick = 0
 oc_last_tick = 0
 oc_delay_ms = 1000
 oc = 0
@@ -139,9 +140,10 @@ if MQTT_GO:
         except:
           print("Active thingy failed...")
 
-        #sync rtc/localtime to internet ntp server
-        if time.ticks_diff(time.ticks_ms(), oc_last_tick) > ntp_delay_ms: #loop 1 time per hour
-          try:
-            ntp_sync.sync_localtime()
-          except:
-            print("NTP sync failed...")
+      #sync rtc/localtime to internet ntp server
+      if time.ticks_diff(time.ticks_ms(), ntp_last_tick) > ntp_delay_ms: #loop 1 time per hour
+        try:
+          ntp_sync.sync_localtime()
+        except:
+          print("NTP sync failed...")
+        ntp_last_tick = time.ticks_ms()
