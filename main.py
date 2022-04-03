@@ -8,7 +8,7 @@ import ssd1306
 import ntp_sync
 
 pub_last_tick = 0
-pub_delay_ms = 60000
+pub_delay_ms = 900000
 ntp_delay_ms = 3600000
 ntp_last_tick = 0
 oc_last_tick = 0

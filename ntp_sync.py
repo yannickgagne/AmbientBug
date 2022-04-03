@@ -3,7 +3,7 @@ import ntptime
 from machine import RTC
 
 # winter offset and summer offset set for Britain. use 1 and 2 for CET
-def sync_localtime(woff=-4,soff=-5):
+def sync_localtime(woff=-5,soff=-4):
     trials = 10
     while trials > 0:
         try:
