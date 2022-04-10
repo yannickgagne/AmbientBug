@@ -63,7 +63,7 @@ MQTT_GO = True
 if MQTT_GO:
   #client.connect()
   while True:
-    if time.ticks_diff(time.ticks_ms(), pub_last_tick) > pub_delay_ms: #loop 1 time per minute
+    if time.ticks_diff(pub_last_tick, time.ticks_ms()) > pub_delay_ms: #loop 1 time per minute
       MQTT_ACTIVE = True
       pub_last_tick = time.ticks_ms()
       #Check if WIFI is up
@@ -120,7 +120,7 @@ if MQTT_GO:
         last_min = time.localtime()[4]
 
       #update small thingy to show that mcu is alive
-      if time.ticks_diff(time.ticks_ms(), oc_last_tick) > oc_delay_ms: #loop 1 time per 2 seconds
+      if time.ticks_diff(oc_last_tick, time.ticks_ms()) > oc_delay_ms: #loop 1 time per 2 seconds
         try:
           oled.fill_rect(120,0,128,8,0)
           oled.show()
@@ -141,7 +141,7 @@ if MQTT_GO:
           print("Active thingy failed...")
 
       #sync rtc/localtime to internet ntp server
-      if time.ticks_diff(time.ticks_ms(), ntp_last_tick) > ntp_delay_ms: #loop 1 time per hour
+      if time.ticks_diff(ntp_last_tick, time.ticks_ms()) > ntp_delay_ms: #loop 1 time per hour
         try:
           ntp_sync.sync_localtime()
         except:
