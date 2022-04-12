@@ -134,7 +134,7 @@ if MQTT_GO:
         try:
           now = utime.localtime()
           oled.fill(0)
-          oled.text('%0.1f C / %0.1f %%' % (stemp, shumi), 0, 0, 1)
+          oled.text('%0.1f C - %0.1f %%' % (stemp, shumi), 0, 0, 1)
           oled.text('%02d:%02d %02d/%02d/%d' % (now[3], now[4], now[2], now[1], now[0]), 0, 16, 1)
           oled.show()
         except:
