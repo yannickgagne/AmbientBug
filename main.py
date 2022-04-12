@@ -1,16 +1,19 @@
-import time
+import utime
 import json
 import network
 from umqtt.simple import MQTTClient
 from machine import Pin, I2C
 import ahtx0
 import ssd1306
+import senko
 import ntp_sync
 
 pub_last_tick = 0
 pub_delay_ms = 900000
+pub_first_loop = True
 ntp_delay_ms = 3600000
 ntp_last_tick = 0
+ntp_first_loop = True
 oc_last_tick = 0
 oc_delay_ms = 1000
 oc = 0
@@ -21,12 +24,12 @@ MQTT_ACTIVE = False
 i2c = I2C(scl=Pin(5), sda=Pin(4))
 sensor = ahtx0.AHT20(i2c)
 oled = ssd1306.SSD1306_I2C(128, 32, i2c)
-time.sleep_ms(20)
+utime.sleep_ms(20)
 oled.rotate(False)
 stemp = 0
 shumi = 0
 
-#MQTT Cayenne setup
+#MQTT setup
 mqtt_user = "qs8$6meFa%D^1Gzw1o9^S5i4plYhPB$q"
 mqtt_pass = "d%EYyEkYQCeRw3l3bti6I^%XRbeuV7g8"
 mqtt_client_id = "mp001"
@@ -58,14 +61,29 @@ print(st_if.ifconfig())
 
 ntp_sync.sync_localtime()
 
+OTA = senko.Senko(
+  user="yannickgagne",
+  repo="AmbientBug",
+  branch="main",
+  files=["main.py"]
+)
+
+if OTA.update():
+  print("Updating from Github...")
+  oled.fill(0)
+  oled.text("Updating...", 0, 0, 1)
+  oled.show()
+  time.sleep_ms(2000)
+  machine.reset()
+
 MQTT_GO = True
 #Publish dummy data to Cayenne
 if MQTT_GO:
   #client.connect()
   while True:
-    if time.ticks_diff(pub_last_tick, time.ticks_ms()) > pub_delay_ms: #loop 1 time per minute
+    if utime.ticks_diff(utime.ticks_ms(), pub_last_tick) > pub_delay_ms: #loop 1 time per minute
       MQTT_ACTIVE = True
-      pub_last_tick = time.ticks_ms()
+      pub_last_tick = utime.ticks_ms()
       #Check if WIFI is up
       try:
         if st_if.isconnected() == False:
@@ -107,20 +125,20 @@ if MQTT_GO:
 
     if not MQTT_ACTIVE:
       #update display when minute changes
-      if not last_min == time.localtime()[4]:
+      if not last_min == utime.localtime()[4]:
         #OLED
         try:
-          now = time.localtime()
+          now = utime.localtime()
           oled.fill(0)
           oled.text('%0.1f C / %0.1f %%' % (stemp, shumi), 0, 0, 1)
           oled.text('%02d:%02d %02d/%02d/%d' % (now[3], now[4], now[2], now[1], now[0]), 0, 16, 1)
           oled.show()
         except:
           print("OLED update failed...")
-        last_min = time.localtime()[4]
+        last_min = utime.localtime()[4]
 
       #update small thingy to show that mcu is alive
-      if time.ticks_diff(oc_last_tick, time.ticks_ms()) > oc_delay_ms: #loop 1 time per 2 seconds
+      if utime.ticks_diff(utime.ticks_ms(), oc_last_tick) > oc_delay_ms: #loop 1 time per 2 seconds
         try:
           oled.fill_rect(120,0,128,8,0)
           oled.show()
@@ -132,7 +150,7 @@ if MQTT_GO:
             oled.text("-", 120, 0, 1)
           if oc == 3:
             oled.text("\\", 120, 0, 1)
-          oc_last_tick = time.ticks_ms()
+          oc_last_tick = utime.ticks_ms()
           oled.show()
           oc += 1
           if oc > 3:
@@ -141,9 +159,10 @@ if MQTT_GO:
           print("Active thingy failed...")
 
       #sync rtc/localtime to internet ntp server
-      if time.ticks_diff(ntp_last_tick, time.ticks_ms()) > ntp_delay_ms: #loop 1 time per hour
+      if utime.ticks_diff(utime.ticks_ms(), ntp_last_tick) > ntp_delay_ms: #loop 1 time per hour
         try:
           ntp_sync.sync_localtime()
+          print("Synced time OK")
         except:
           print("NTP sync failed...")
-        ntp_last_tick = time.ticks_ms()
+        ntp_last_tick = utime.ticks_ms()
