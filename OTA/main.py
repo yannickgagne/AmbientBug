@@ -3,6 +3,7 @@ import json
 import network
 from umqtt.simple import MQTTClient
 from machine import Pin, I2C
+import machine
 import ahtx0
 import ssd1306
 import senko
@@ -75,7 +76,7 @@ try:
     oled.fill(0)
     oled.text("Updating...", 0, 0, 1)
     oled.show()
-    time.sleep_ms(2000)
+    utime.sleep_ms(2000)
     machine.reset()
 except:
   print("Updating failed...")
