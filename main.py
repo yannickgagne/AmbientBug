@@ -81,7 +81,8 @@ MQTT_GO = True
 if MQTT_GO:
   #client.connect()
   while True:
-    if (utime.ticks_diff(utime.ticks_ms(), pub_last_tick) > pub_delay_ms) or (pub_first_loop): #loop 1 time per minute
+    if (pub_first_loop) or (utime.ticks_diff(utime.ticks_ms(), pub_last_tick) > pub_delay_ms): #loop 1 time per minute
+      print(utime.ticks_diff(utime.ticks_ms(), pub_last_tick))
       MQTT_ACTIVE = True
       pub_first_loop = False
       pub_last_tick = utime.ticks_ms()
