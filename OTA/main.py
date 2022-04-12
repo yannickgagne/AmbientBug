@@ -66,6 +66,7 @@ try:
     user="yannickgagne",
     repo="AmbientBug",
     branch="main",
+    working_dir="OTA",
     files=["main.py"]
   )
 
