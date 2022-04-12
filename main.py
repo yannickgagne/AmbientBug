@@ -61,20 +61,23 @@ print(st_if.ifconfig())
 
 ntp_sync.sync_localtime()
 
-OTA = senko.Senko(
-  user="yannickgagne",
-  repo="AmbientBug",
-  branch="main",
-  files=["main.py"]
-)
+try:
+  OTA = senko.Senko(
+    user="yannickgagne",
+    repo="AmbientBug",
+    branch="main",
+    files=["main.py"]
+  )
 
-if OTA.update():
-  print("Updating from Github...")
-  oled.fill(0)
-  oled.text("Updating...", 0, 0, 1)
-  oled.show()
-  time.sleep_ms(2000)
-  machine.reset()
+  if OTA.update():
+    print("Updating from Github...")
+    oled.fill(0)
+    oled.text("Updating...", 0, 0, 1)
+    oled.show()
+    time.sleep_ms(2000)
+    machine.reset()
+except:
+  print("Updating failed...")
 
 MQTT_GO = True
 #Publish dummy data to Cayenne
@@ -82,7 +85,6 @@ if MQTT_GO:
   #client.connect()
   while True:
     if (pub_first_loop) or (utime.ticks_diff(utime.ticks_ms(), pub_last_tick) > pub_delay_ms): #loop 1 time per minute
-      print(utime.ticks_diff(utime.ticks_ms(), pub_last_tick))
       MQTT_ACTIVE = True
       pub_first_loop = False
       pub_last_tick = utime.ticks_ms()
