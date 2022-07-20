@@ -36,7 +36,7 @@ mqtt_pass = "d%EYyEkYQCeRw3l3bti6I^%XRbeuV7g8"
 mqtt_client_id = "mp001"
 mqtt_server = "10.10.1.68"
 mqtt_port = 1883
-mqtt_room = "mainbedroom"
+mqtt_room = "cuisine"
 mqtt_topic = b"5702/" + mqtt_room + "/" + mqtt_client_id
 client = MQTTClient(mqtt_client_id, mqtt_server, port=mqtt_port, user=mqtt_user, password=mqtt_pass, keepalive=60)
 
