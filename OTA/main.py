@@ -31,18 +31,18 @@ stemp = 0
 shumi = 0
 
 #MQTT setup
-mqtt_user = "qs8$6meFa%D^1Gzw1o9^S5i4plYhPB$q"
-mqtt_pass = "d%EYyEkYQCeRw3l3bti6I^%XRbeuV7g8"
+mqtt_user = "mp001_user"
+mqtt_pass = "SuperPubSecTtqM"
 mqtt_client_id = "mp001"
-mqtt_server = "10.10.1.68"
+mqtt_server = "10.10.1.85"
 mqtt_port = 1883
 mqtt_room = "mainbedroom"
 mqtt_topic = b"5702/" + mqtt_room + "/" + mqtt_client_id
 client = MQTTClient(mqtt_client_id, mqtt_server, port=mqtt_port, user=mqtt_user, password=mqtt_pass, keepalive=60)
 
 #Connect to WIFI
-ssid = "57xxIoT"
-password =  "jx+h2:s^4;)e)r-;+8[e3[39(rq5]>0_.(};)gu@3&nkn&d$2,gr,@o{{&g?"
+ssid = "CHUPAPI_MUNANYO"
+password =  "5702AdultOnlyXXX"
 
 st_if = network.WLAN(network.STA_IF)
 ap_if = network.WLAN(network.AP_IF)
