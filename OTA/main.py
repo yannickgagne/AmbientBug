@@ -109,16 +109,8 @@ if MQTT_GO:
       #Build JSON payload
       try:
         payload = [ {
-                    "channel": 1,
-                    "value": stemp,
-                    "type": "temp",
-                    "unit": "c"
-                  },
-                  {
-                    "channel": 2,
-                    "value": shumi,
-                    "type": "rel_hum",
-                    "unit": "p"
+                    "temperature": stemp,
+                    "humidity": shumi
                   } ]
 
         client.connect()
