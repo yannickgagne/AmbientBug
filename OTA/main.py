@@ -108,10 +108,10 @@ if MQTT_GO:
         print("Sensor reading failed...")
       #Build JSON payload
       try:
-        payload = [ {
+        payload = {
                     "temperature": stemp,
                     "humidity": shumi
-                  } ]
+                  }
 
         client.connect()
         mqtt_msg = json.dumps(payload)
